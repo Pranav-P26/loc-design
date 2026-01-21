@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lab-on-a-Chip Neural Tissue Simulation</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Lab-on-a-Chip Neural Tissue Device</h1>
+            <p class="subtitle">Interactive Tutorial & Flow Simulation</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Simulation Canvas -->
+            <div class="simulation-panel">
+                <canvas id="chipCanvas" width="800" height="500"></canvas>
+                
+                <div class="controls">
+                    <div class="control-group">
+                        <label>Simulation Speed:</label>
+                        <input type="range" id="speedSlider" min="0.1" max="3" step="0.1" value="1">
+                        <span id="speedValue">1x</span>
+                    </div>
+                    <div class="control-group">
+                        <label>Flow Rate:</label>
+                        <span class="fixed-value">0.5 µL/min</span>
+                    </div>
+                    <div class="button-group">
+                        <button id="playPauseBtn" class="btn btn-primary">▶ Play</button>
+                        <button id="resetBtn" class="btn btn-secondary">↺ Reset</button>
+                        <button id="nextStepBtn" class="btn btn-accent">Next Step →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tutorial Panel -->
+            <div class="tutorial-panel">
+                <div class="step-indicator">
+                    <span id="currentStep">Step 1</span> of <span id="totalSteps">8</span>
+                </div>
+                
+                <div class="step-content">
+                    <h2 id="stepTitle">Device Overview</h2>
+                    <div id="stepDescription" class="description"></div>
+                </div>
+
+                <div class="legend">
+                    <h3>Key</h3>
+                    <div class="legend-items" id="legendItems"></div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <div class="component-info" id="componentInfo">
+            <div class="info-header">
+                <h3 id="infoTitle">Hover over components</h3>
+                <span class="close-btn" id="closeInfo">×</span>
+            </div>
+            <p id="infoDescription">Move your mouse over different parts of the chip to learn more about each component.</p>
+        </div>
+    </div>
+
+    <script src="simulation.js"></script>
+</body>
+</html>
