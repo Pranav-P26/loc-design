@@ -3,25 +3,25 @@ class LabOnChipSimulation {
         this.canvas = document.getElementById('chipCanvas');
         this.ctx = this.canvas.getContext('2d');
         
-        // Simulation state
+        // Simulation states
         this.isPlaying = false;
         this.currentStep = 0;
         this.simulationTime = 0;
         this.speed = 1;
         this.flowRate = 0.5;
         
-        // Animation frame
+        // Animation frames
         this.animationId = null;
         this.lastTime = 0;
         
-        // Drug flow state
+        // Drug flow states
         this.drugFrontPosition = 0;
         this.diffusionLevel = 0;
         this.flowParticles = [];
         this.drugParticles = [];
         this.diffusionParticles = [];
         
-        // Cell structures
+        // Cell structuress
         this.motorNeurons = [];
         this.schwannCells = [];
         this.axons = [];
@@ -38,7 +38,7 @@ class LabOnChipSimulation {
         this.render();
     }
     
-    // Tutorial steps
+    // Tutorial steps and descriptions
     steps = [
         {
             title: "Device Overview",
@@ -142,6 +142,7 @@ class LabOnChipSimulation {
         }
     ];
     
+    // Component information for hover display
     componentInfo = {
         mediumChannel: {
             title: "Medium Channel",
@@ -169,6 +170,7 @@ class LabOnChipSimulation {
         }
     };
     
+    // Key
     legendItems = [
         { color: "#4a90d9", label: "Medium Channel (flowing)" },
         { color: "#FFB6C1", label: "ECM Hydrogel" },
@@ -177,6 +179,7 @@ class LabOnChipSimulation {
         { color: "#ff4444", label: "Drug Solution" },
     ];
     
+    // Setup event listeners for UI controls
     setupEventListeners() {
         document.getElementById('playPauseBtn').addEventListener('click', () => this.togglePlay());
         document.getElementById('resetBtn').addEventListener('click', () => this.reset());
@@ -260,6 +263,7 @@ class LabOnChipSimulation {
         // Flow particles in channels
         for (let i = 0; i < 12; i++) {
             this.flowParticles.push({
+                // Random x and y within top channel length
                 x: 180 + Math.random() * 440,
                 y: this.layout.topChannelY + 10 + Math.random() * 25,
                 speed: 0.4 + Math.random() * 0.3,
@@ -267,6 +271,7 @@ class LabOnChipSimulation {
                 channel: 'top'
             });
             this.flowParticles.push({
+                // Random x and y within bottom channel length
                 x: 180 + Math.random() * 440,
                 y: this.layout.bottomChannelY + 10 + Math.random() * 25,
                 speed: 0.4 + Math.random() * 0.3,
@@ -276,6 +281,7 @@ class LabOnChipSimulation {
         }
     }
     
+    // Component regions for hover detection
     initializeComponents() {
         const L = this.layout;
         this.components = [
@@ -289,6 +295,7 @@ class LabOnChipSimulation {
             { type: 'hydrogelPort', x: 100, y: 225, width: 35, height: 35 }
         ];
         
+        // Add motor neurons and schwann cells as individual components
         this.motorNeurons.forEach(n => {
             this.components.push({ type: 'neuron', x: n.x - 12, y: n.y - 12, width: 24, height: 24 });
         });
@@ -298,6 +305,7 @@ class LabOnChipSimulation {
         });
     }
     
+    // Update legend display
     updateLegend() {
         const container = document.getElementById('legendItems');
         container.innerHTML = this.legendItems.map(item => `
@@ -308,6 +316,7 @@ class LabOnChipSimulation {
         `).join('');
     }
     
+    // Load a specific tutorial step
     loadStep(stepIndex) {
         this.currentStep = stepIndex;
         const step = this.steps[stepIndex];
@@ -322,6 +331,7 @@ class LabOnChipSimulation {
         }
     }
     
+    // Navigate to the next tutorial step
     nextStep() {
         if (this.currentStep < this.steps.length - 1) {
             this.loadStep(this.currentStep + 1);
@@ -331,6 +341,7 @@ class LabOnChipSimulation {
         }
     }
     
+    // Play/pause toggle
     togglePlay() {
         this.isPlaying = !this.isPlaying;
         document.getElementById('playPauseBtn').textContent = this.isPlaying ? '⏸ Pause' : '▶ Play';
@@ -343,6 +354,7 @@ class LabOnChipSimulation {
         }
     }
     
+    // Reset simulation to initial state
     reset() {
         this.isPlaying = false;
         document.getElementById('playPauseBtn').textContent = '▶ Play';
@@ -393,11 +405,16 @@ class LabOnChipSimulation {
             }
         }
     }
+    
+    // Drug reaches cells
     drugReachesCells() {
         this.diffusionLevel = Math.max(this.diffusionLevel, 0.5);
     }
+    
+    // Washout
     washout() {}
     
+    // Main animation loop
     animate() {
         if (!this.isPlaying) return;
         
@@ -411,6 +428,7 @@ class LabOnChipSimulation {
         this.animationId = requestAnimationFrame(() => this.animate());
     }
     
+    // Update simulation state
     update(dt) {
         this.simulationTime += dt;
         
@@ -422,8 +440,10 @@ class LabOnChipSimulation {
         
         // Drug front (steps 3+)
         if (this.currentStep >= 3) {
+            // Update drug front position
             this.drugFrontPosition = Math.min(1, this.drugFrontPosition + dt * 0.07 * this.flowRate);
             
+            // Generate drug particles at inlet
             if (Math.random() < 0.35 && this.drugParticles.length < 50) {
                 this.drugParticles.push({
                     x: 185,
@@ -440,6 +460,7 @@ class LabOnChipSimulation {
             }
         }
         
+        // Update drug particles
         this.drugParticles.forEach(p => {
             p.x += p.speed * this.flowRate * 70 * dt;
         });
@@ -449,6 +470,7 @@ class LabOnChipSimulation {
         if (this.currentStep >= 5) {
             this.diffusionLevel = Math.min(1, this.diffusionLevel + dt * 0.035);
             
+            // Update diffusion particles
             this.diffusionParticles.forEach(p => {
                 const dir = p.direction;
                 if ((dir > 0 && p.y < p.targetY) || (dir < 0 && p.y > p.targetY)) {
@@ -457,6 +479,7 @@ class LabOnChipSimulation {
                 p.x += (Math.random() - 0.5) * 20 * dt;
             });
             
+            // Remove particles that reached target
             const rate = dt * 0.07 * this.diffusionLevel;
             this.motorNeurons.forEach(n => n.drugExposure = Math.min(1, n.drugExposure + rate));
             this.axons.forEach(a => a.drugExposure = Math.min(1, a.drugExposure + rate * 0.7));
@@ -471,6 +494,7 @@ class LabOnChipSimulation {
         }
     }
     
+    // Render the entire simulation
     render() {
         const ctx = this.ctx;
         const w = this.canvas.width;
@@ -496,6 +520,7 @@ class LabOnChipSimulation {
         this.drawHighlight(ctx);
     }
     
+    // Render the entire simulation
     drawChipBase(ctx) {
         // Dark semi-transparent chip body
         ctx.fillStyle = 'rgba(40, 44, 62, 0.6)';
@@ -507,6 +532,7 @@ class LabOnChipSimulation {
         ctx.stroke();
     }
     
+    // Render the entire simulation
     drawChannelConnections(ctx) {
         // Connections between reservoirs and channels - darker
         ctx.fillStyle = '#3a3a5a';
@@ -518,6 +544,7 @@ class LabOnChipSimulation {
         ctx.fillRect(130, 238, 50, 8);
     }
     
+    // Render the entire simulation
     drawMediumChannels(ctx) {
         const L = this.layout;
         const channelWidth = L.channelEndX - L.channelStartX;
@@ -561,6 +588,7 @@ class LabOnChipSimulation {
         }
     }
     
+    // Render the entire simulation
     drawHydrogel(ctx) {
         const L = this.layout;
         
@@ -571,14 +599,14 @@ class LabOnChipSimulation {
         // Diffusion gradient overlay
         if (this.diffusionLevel > 0) {
             const alpha = this.diffusionLevel * 0.45;
-            // From top
+            // Render top diffusion gradient
             const gt = ctx.createLinearGradient(0, L.hydrogelY, 0, L.hydrogelY + L.hydrogelHeight * 0.5);
             gt.addColorStop(0, `rgba(255, 90, 90, ${alpha})`);
             gt.addColorStop(1, 'rgba(255, 90, 90, 0)');
             ctx.fillStyle = gt;
             ctx.fillRect(L.channelStartX, L.hydrogelY, L.channelEndX - L.channelStartX, L.hydrogelHeight * 0.5);
             
-            // From bottom
+            // Render bottom diffusion gradient
             const gb = ctx.createLinearGradient(0, L.hydrogelY + L.hydrogelHeight, 0, L.hydrogelY + L.hydrogelHeight * 0.5);
             gb.addColorStop(0, `rgba(255, 90, 90, ${alpha})`);
             gb.addColorStop(1, 'rgba(255, 90, 90, 0)');
@@ -587,6 +615,7 @@ class LabOnChipSimulation {
         }
     }
     
+    // Render the axons
     drawAxons(ctx) {
         this.axons.forEach(axon => {
             const exp = axon.drugExposure;
@@ -603,6 +632,7 @@ class LabOnChipSimulation {
         });
     }
     
+    // Render the Schwann cells
     drawSchwannCells(ctx) {
         this.schwannCells.forEach(cell => {
             ctx.save();
@@ -629,6 +659,7 @@ class LabOnChipSimulation {
         });
     }
     
+    // Render the motor neurons
     drawMotorNeurons(ctx) {
         this.motorNeurons.forEach(neuron => {
             const pulse = Math.sin(this.simulationTime * 2.5 + neuron.phase) * 0.06 + 1;
@@ -652,6 +683,7 @@ class LabOnChipSimulation {
         });
     }
     
+    // Render the flow particles
     drawFlowParticles(ctx) {
         ctx.fillStyle = 'rgba(65, 125, 175, 0.55)';
         this.flowParticles.forEach(p => {
@@ -661,6 +693,7 @@ class LabOnChipSimulation {
         });
     }
     
+    // Render the drug particles
     drawDrugParticles(ctx) {
         ctx.fillStyle = 'rgba(255, 50, 50, 0.8)';
         this.drugParticles.forEach(p => {
@@ -670,6 +703,7 @@ class LabOnChipSimulation {
         });
     }
     
+    // Render the diffusion particles
     drawDiffusionParticles(ctx) {
         this.diffusionParticles.forEach(p => {
             ctx.fillStyle = `rgba(255, 70, 70, ${p.alpha * 0.65})`;
@@ -679,6 +713,7 @@ class LabOnChipSimulation {
         });
     }
     
+    // Render the reservoirs
     drawReservoirs(ctx) {
         const reservoirs = [
             { x: 127, y: 102, inlet: true },
@@ -687,9 +722,11 @@ class LabOnChipSimulation {
             { x: 673, y: 397, inlet: false }
         ];
         
+        // Render the reservoirs
         reservoirs.forEach(res => {
             const grad = ctx.createRadialGradient(res.x - 4, res.y - 4, 0, res.x, res.y, 22);
             
+            // Color based on inlet/outlet and current step
             if (res.inlet && this.currentStep >= 3) {
                 grad.addColorStop(0, '#ff7777');
                 grad.addColorStop(0.6, '#cc4444');
@@ -713,6 +750,7 @@ class LabOnChipSimulation {
         });
     }
     
+    // Render the hydrogel port
     drawHydrogelPort(ctx) {
         const grad = ctx.createRadialGradient(117, 242, 0, 117, 242, 11);
         grad.addColorStop(0, '#5588aa');
@@ -723,6 +761,7 @@ class LabOnChipSimulation {
         ctx.fill();
     }
     
+    // Render the labels
     drawLabels(ctx) {
         ctx.font = 'bold 11px Arial';
         ctx.fillStyle = '#a0a0a0';
@@ -742,6 +781,7 @@ class LabOnChipSimulation {
         ctx.fillText('Outlet', 673, 75);
     }
     
+    // Render the highlight for current step
     drawHighlight(ctx) {
         const step = this.steps[this.currentStep];
         if (!step.highlight || step.highlight === 'all') return;
@@ -753,6 +793,7 @@ class LabOnChipSimulation {
         ctx.lineWidth = 3;
         ctx.setLineDash([6, 4]);
         
+        // Highlight based on current step
         switch (step.highlight) {
             case 'inlet':
                 ctx.beginPath();
@@ -780,7 +821,8 @@ class LabOnChipSimulation {
         }
         ctx.setLineDash([]);
     }
-    
+
+    // Utility: draw rounded rectangle
     roundRect(ctx, x, y, w, h, r) {
         if (w < 2 * r) r = w / 2;
         if (h < 2 * r) r = h / 2;
@@ -792,6 +834,7 @@ class LabOnChipSimulation {
         ctx.closePath();
     }
     
+    // Handle mouse hover events
     handleHover(e) {
         const rect = this.canvas.getBoundingClientRect();
         const scaleX = this.canvas.width / rect.width;
@@ -808,6 +851,7 @@ class LabOnChipSimulation {
         this.hideComponentInfo();
     }
     
+    //  get component info and display
     showComponentInfo(type) {
         const info = this.componentInfo[type];
         if (!info) return;
@@ -816,11 +860,13 @@ class LabOnChipSimulation {
         document.getElementById('componentInfo').classList.add('visible');
     }
     
+    // Hide component info display
     hideComponentInfo() {
         document.getElementById('componentInfo').classList.remove('visible');
     }
 }
 
+// Initialize simulation on page load
 document.addEventListener('DOMContentLoaded', () => {
     window.simulation = new LabOnChipSimulation();
 });
